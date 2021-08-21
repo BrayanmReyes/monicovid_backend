@@ -15,7 +15,7 @@ from profiles.urls import profiles_blueprint
 def create_app():
     app = Flask(__name__)
     config = DevelopmentConfig()
-    CORS(app)
+    #  CORS(app)
     app.config.from_object(config)
     db.init_app(app)
     ma.init_app(app)

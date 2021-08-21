@@ -1,7 +1,8 @@
+from flask_cors import cross_origin
 from flask_restx import Namespace, fields
 
-login_namespace = Namespace('login', description='Authentication operations')
-user_namespace = Namespace('users', description='User operations')
+login_namespace = Namespace('login', description='Authentication operations', decorators=[cross_origin()])
+user_namespace = Namespace('users', description='User operations', decorators=[cross_origin()])
 
 login_response = login_namespace.model('LoginResponse', {
     'token': fields.String
