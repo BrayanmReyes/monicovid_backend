@@ -1,3 +1,5 @@
+from sqlalchemy import case
+
 from settings.layers.database import db, BaseModel
 
 
@@ -17,8 +19,11 @@ class User(db.Model, BaseModel):
     type = db.Column(db.String(200), nullable=False)
 
     __mapper_args__ = {
-        'polymorphic_identity': 'users',
-        'polymorphic_on': type
+        'polymorphic_identity': 'user',
+        'polymorphic_on': case([
+            (type == "patient", "patient"),
+            (type == "doctor", "doctor")
+        ], else_="user")
     }
 
     def __init__(self, first_name, last_name,  email, password, dni, type):
@@ -36,7 +41,7 @@ class Patient(User):
     comorbidity = db.Column(db.String(200), nullable=True)
 
     __mapper_args__ = {
-        'polymorphic_identity': 'patients',
+        'polymorphic_identity': 'patient',
     }
 
 
@@ -46,5 +51,5 @@ class Doctor(User):
     speciality = db.Column(db.String(200), nullable=True)
 
     __mapper_args__ = {
-        'polymorphic_identity': 'doctors',
+        'polymorphic_identity': 'doctor',
     }

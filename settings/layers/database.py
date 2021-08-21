@@ -2,10 +2,6 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 
-def commit_change():
-    db.session.commit()
-
-
 class BaseModel:
 
     def save(self):

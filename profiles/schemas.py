@@ -2,7 +2,7 @@ from marshmallow import post_load, post_dump, validates_schema
 from werkzeug.security import generate_password_hash
 from settings.exceptions import BadRequestException
 from settings.layers.serialization import ma
-from profiles.models import User
+from profiles.models import User, Patient, Doctor
 
 
 class LoginSchema(ma.Schema):
@@ -76,4 +76,8 @@ class UserSchema(ma.Schema):
     @post_load
     def make_user(self, data, **kwargs):
         data['password'] = generate_password_hash(data['password'])
-        return User(**data)
+        data['type'] = data['type'].lower()
+        if data['type'] == 'patient':
+            return Patient(**data)
+        elif data['type'] == 'doctor':
+            return Doctor(**data)
