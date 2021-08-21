@@ -29,7 +29,7 @@ class LoginResource(Resource):
             return make_response({'message': 'No user found with that email'}, 401)
         if check_password_hash(user.password, password):
             token = create_access_token(identity=user.id, expires_delta=datetime.timedelta(hours=5))
-            return make_response({'token': token}, 201)
+            return make_response({'token': token}, 200)
         return make_response({'message': 'The credentials are wrong'}, 401)
 
 

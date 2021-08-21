@@ -20,7 +20,7 @@ class InvalidInputException(HTTPException):
     code = 422
 
     def __init__(self):
-        message = f'You has send invalid inputs'
+        message = f'You have send invalid inputs'
         super().__init__(message)
 
 
