@@ -9,6 +9,7 @@ from settings.exceptions import NotFoundException, BadRequestException, Internal
 from settings.layers.database import db
 from settings.layers.jwt import jwt
 from settings.layers.serialization import ma
+from profiles.urls import profiles_blueprint
 
 
 def create_app():
@@ -21,7 +22,7 @@ def create_app():
     with app.app_context():
         db.create_all()
     jwt.init_app(app)
-    # app.register_blueprint(accounts_blueprint)
+    app.register_blueprint(profiles_blueprint)
     # app.register_blueprint(libraries_blueprint)
     app.register_error_handler(NoAuthorizationError, handle_no_token)
     app.register_error_handler(InvalidHeaderError, handle_invalid_header)
