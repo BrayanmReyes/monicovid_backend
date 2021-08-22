@@ -77,7 +77,7 @@ class ForgotPasswordResource(Resource):
         user = User.get_one(**{'email': email})
         if user:
             token = encrypt_data(user.email)
-            reset_link = f'http://127.0.0.1:3000/?token={token}'
+            reset_link = f'http://127.0.0.1:3000/reset-password?token={token}'
             if send_email('Forgot Password', f'Please, click the link to restore your password: {reset_link}',
                           [user.email]):
                 return make_response({'message': 'The email has been sent'}, 200)
