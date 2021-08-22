@@ -1,5 +1,4 @@
 from flask import Flask
-from flask_cors import CORS
 from flask_jwt_extended.exceptions import NoAuthorizationError, InvalidHeaderError
 from jwt import DecodeError, ExpiredSignatureError
 
@@ -9,6 +8,7 @@ from settings.exceptions import NotFoundException, BadRequestException, Internal
 from settings.layers.database import db
 from settings.layers.jwt import jwt
 from settings.layers.serialization import ma
+from settings.layers.mail import mail
 from profiles.urls import profiles_blueprint
 
 
@@ -22,6 +22,7 @@ def create_app():
     with app.app_context():
         db.create_all()
     jwt.init_app(app)
+    mail.init_app(app)
     app.register_blueprint(profiles_blueprint)
     # app.register_blueprint(libraries_blueprint)
     app.register_error_handler(NoAuthorizationError, handle_no_token)

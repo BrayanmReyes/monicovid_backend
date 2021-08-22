@@ -22,6 +22,13 @@ class DevelopmentConfig(Config):
     SQLALCHEMY_ECHO = False
     PROPAGATE_EXCEPTIONS = True
     SECRET_KEY = 'super secret'
+    MAIL_SERVER = 'smtp.gmail.com'
+    MAIL_PORT = 587
+    MAIL_USE_TLS = True
+    MAIL_USE_SSL = False
+    MAIL_DEFAULT_SENDER = 'monicovid.no.reply@gmail.com'
+    MAIL_USERNAME = 'monicovid.no.reply@gmail.com'
+    MAIL_PASSWORD = 'bgzdagkdujcjxmag'
 
 
 class TestingConfig(Config):
