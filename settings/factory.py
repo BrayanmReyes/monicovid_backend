@@ -13,6 +13,7 @@ from settings.layers.mail import mail
 from auth.urls import auth_blueprint
 from profiles.urls import profiles_blueprint
 from medical_risks.urls import medical_risks_blueprint
+from medical_monitoring.urls import medical_monitoring_blueprint
 
 
 def create_app():
@@ -30,6 +31,7 @@ def create_app():
     app.register_blueprint(auth_blueprint)
     app.register_blueprint(profiles_blueprint)
     app.register_blueprint(medical_risks_blueprint)
+    app.register_blueprint(medical_monitoring_blueprint)
     app.register_error_handler(NoAuthorizationError, handle_no_token)
     app.register_error_handler(InvalidHeaderError, handle_invalid_header)
     app.register_error_handler(ExpiredSignatureError, handle_expires_token)

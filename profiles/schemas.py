@@ -45,5 +45,5 @@ class ContactSchema(ma.Schema):
             raise BadRequestException(errors)
 
     @post_load
-    def make_book(self, data, **kwargs):
+    def make_contact(self, data, **kwargs):
         return Contact(**data)
