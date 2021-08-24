@@ -6,10 +6,13 @@ from settings.config import DevelopmentConfig
 from settings.exceptions import NotFoundException, BadRequestException, InternalServerException, handle_exception, \
     handle_no_token, handle_invalid_header, handle_expires_token
 from settings.layers.database import db
-from settings.layers.jwt import jwt
 from settings.layers.serialization import ma
+from settings.layers.seeder import seeder
+from settings.layers.jwt import jwt
 from settings.layers.mail import mail
+from auth.urls import auth_blueprint
 from profiles.urls import profiles_blueprint
+from medical_risks.urls import medical_risks_blueprint
 
 
 def create_app():
@@ -21,10 +24,12 @@ def create_app():
     ma.init_app(app)
     with app.app_context():
         db.create_all()
+    seeder.init_app(app, db)
     jwt.init_app(app)
     mail.init_app(app)
+    app.register_blueprint(auth_blueprint)
     app.register_blueprint(profiles_blueprint)
-    # app.register_blueprint(libraries_blueprint)
+    app.register_blueprint(medical_risks_blueprint)
     app.register_error_handler(NoAuthorizationError, handle_no_token)
     app.register_error_handler(InvalidHeaderError, handle_invalid_header)
     app.register_error_handler(ExpiredSignatureError, handle_expires_token)

@@ -15,7 +15,7 @@ class User(db.Model, BaseModel):
     address = db.Column(db.String(200), nullable=True)
     dni = db.Column(db.String(200), nullable=False)
     username = db.Column(db.String(200), nullable=True)
-    recovered = db.Column(db.String(200), nullable=True)
+    recovered = db.Column(db.Boolean(), default=False, nullable=True)
     type = db.Column(db.String(200), nullable=False)
 
     __mapper_args__ = {
@@ -38,7 +38,7 @@ class User(db.Model, BaseModel):
 class Patient(User):
     __tablename__ = 'patients'
     id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
-    comorbidity = db.Column(db.String(200), nullable=True)
+    # comorbidity = db.Column(db.String(200), nullable=True)
 
     __mapper_args__ = {
         'polymorphic_identity': 'patient',
@@ -53,3 +53,18 @@ class Doctor(User):
     __mapper_args__ = {
         'polymorphic_identity': 'doctor',
     }
+
+
+class Contact(db.Model, BaseModel):
+    __tablename__ = 'contacts'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(200), nullable=False)
+    email = db.Column(db.String(200), nullable=False)
+    phone = db.Column(db.String(200), nullable=False)
+    patient_id = db.Column(db.Integer, db.ForeignKey('patients.id'), nullable=False)
+    patient = db.relationship("Patient")
+
+    def __init__(self, name, email, phone):
+        self.name = name
+        self.email = email
+        self.phone = phone

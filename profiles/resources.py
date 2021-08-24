@@ -1,106 +1,148 @@
-import datetime
-
-from flask import request, make_response
-from flask_jwt_extended import jwt_required, create_access_token
+from flask import request
 from flask_restx import Resource
-from werkzeug.security import check_password_hash, generate_password_hash
 
-from profiles.docs import login_namespace, user_namespace, user_request, user_response, login_request, login_response, \
-    login_unauthorized, forgot_password_request, forgot_password_response, reset_password_request, \
-    reset_password_response
-from profiles.models import User
-from profiles.schemas import UserSchema, LoginSchema
-from profiles.utils import encrypt_data, decrypt_data
-from settings.layers.mail import send_email
+from profiles.docs import user_namespace, patient_namespace, contact_namespace, user_response, patient_response,\
+    contact_request, contact_response, contact_deleted
+from profiles.models import User, Patient, Contact
+from profiles.schemas import UserSchema, PatientSchema, ContactSchema
+from settings.exceptions import NotFoundException
 
 
-@login_namespace.route('')
-class LoginResource(Resource):
+@user_namespace.route('/<int:user_id>')
+class UserDetailResource(Resource):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.schema = LoginSchema()
-
-    @login_namespace.expect(login_request)
-    @login_namespace.response(code=200, description='Success', model=login_response)
-    @login_namespace.response(code=401, description='Unauthorized', model=login_unauthorized)
-    def post(self):
-        data = self.schema.load(request.get_json())
-        email = data.get('email')
-        password = data.get('password')
-        user = User.get_one(**{'email': email})
-        if not user:
-            return make_response({'message': 'No user found with that email'}, 401)
-        if check_password_hash(user.password, password):
-            token = create_access_token(identity=user.id, expires_delta=datetime.timedelta(hours=5))
-            return make_response({'token': token}, 200)
-        return make_response({'message': 'The credentials are wrong'}, 401)
-
-
-@user_namespace.route('')
-class UserListResource(Resource):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.schemas = UserSchema(many=True)
         self.schema = UserSchema()
 
-    @user_namespace.marshal_list_with(user_response, code=200, description='Success')
-    @jwt_required()
-    def get(self):
-        users = User.get_all()
-        result = self.schemas.dump(users)
+    @staticmethod
+    def find_user(user_id):
+        user = User.get_by_id(user_id)
+        if user is not None:
+            return user
+        else:
+            raise NotFoundException('user', 'id', user_id)
+
+    @user_namespace.response(code=200, description='Success', model=user_response)
+    @user_namespace.response(code=404, description='User not found')
+    def get(self, user_id):
+        user = self.find_user(user_id)
+        result = self.schema.dump(user)
         return result, 200
 
-    @user_namespace.expect(user_request)
-    @user_namespace.response(code=400, description='Bad Request')
-    @user_namespace.response(code=200, description='Success', model=user_response)
+
+@patient_namespace.route('')
+class PatientListResource(Resource):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.schema = PatientSchema(many=True)
+
+    @patient_namespace.marshal_list_with(patient_response, code=200, description='Success')
+    def get(self):
+        patients = Patient.get_all()
+        result = self.schema.dump(patients)
+        return result, 200
+
+
+@patient_namespace.route('/<int:patient_id>')
+class PatientDetailResource(Resource):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.schema = PatientSchema()
+
+    @staticmethod
+    def find_patient(patient_id):
+        patient = Patient.get_by_id(patient_id)
+        if patient is not None:
+            return patient
+        else:
+            raise NotFoundException('patient', 'id', patient_id)
+
+    @patient_namespace.response(code=200, description='Success', model=patient_response)
+    @patient_namespace.response(code=404, description='Patient not found')
+    def get(self, patient_id):
+        patient = self.find_patient(patient_id)
+        result = self.schema.dump(patient)
+        return result, 200
+
+
+@contact_namespace.route('')
+@contact_namespace.doc(params={'patient_id': 'Patient Id'})
+class ContactListResource(Resource):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.schemas = ContactSchema(many=True)
+        self.schema = ContactSchema()
+
+    @staticmethod
+    def find_patient(patient_id):
+        patient = Patient.get_by_id(patient_id)
+        if patient:
+            return True
+        else:
+            raise NotFoundException('patient', 'id', patient_id)
+
+    @contact_namespace.marshal_list_with(contact_response, code=200, description='Success')
+    @contact_namespace.response(code=400, description='Bad Request')
+    def get(self):
+        params = request.args
+        patient_id = int(params.get('patient_id')) if params.get('patient_id') else None
+        if self.find_patient(patient_id):
+            contacts = Contact.simple_filter(**{'patient_id': patient_id})
+            result = self.schemas.dump(contacts)
+            return result, 200
+
+    @contact_namespace.expect(contact_request)
+    @contact_namespace.response(code=400, description='Bad Request')
+    @contact_namespace.response(code=201, description='Success', model=contact_response)
+    @contact_namespace.response(code=404, description='Patient not found')
     def post(self):
         data = request.get_json()
-        email = data.get('email')
-        user = User.get_one(**{'email': email})
-        if not user:
-            user = self.schema.load(data)
-            result = self.schema.dump(user.save())
+        params = request.args
+        patient_id = int(params.get('patient_id')) if params.get('patient_id') else None
+        contact = self.schema.load(data)
+        if self.find_patient(patient_id):
+            contact.patient_id = patient_id
+            result = self.schema.dump(contact.save())
             return result, 201
+
+
+@contact_namespace.route('/<int:contact_id>')
+class ContactDetailResource(Resource):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.schema = ContactSchema()
+
+    @staticmethod
+    def find_contact(contact_id):
+        contact = Contact.get_by_id(contact_id)
+        if contact is not None:
+            return contact
         else:
-            return make_response({'message': 'User already exists. Please Log in'}, 202)
+            raise NotFoundException('contact', 'id', contact_id)
 
+    @contact_namespace.response(code=200, description='Success', model=contact_response)
+    @contact_namespace.response(code=404, description='Contact not found')
+    def get(self, contact_id):
+        contact = self.find_contact(contact_id)
+        result = self.schema.dump(contact)
+        return result, 200
 
-@user_namespace.route('/forgot-password')
-class ForgotPasswordResource(Resource):
-
-    @user_namespace.expect(forgot_password_request)
-    @user_namespace.response(code=400, description='Bad Request')
-    @user_namespace.response(code=200, description='Success', model=forgot_password_response)
-    def post(self):
+    @contact_namespace.expect(contact_request)
+    @contact_namespace.response(code=200, description='Success', model=contact_response)
+    @contact_namespace.response(code=404, description='Contact not found')
+    def put(self, contact_id):
         data = request.get_json()
-        email = data.get('email')
-        user = User.get_one(**{'email': email})
-        if user:
-            token = encrypt_data(user.email)
-            reset_link = f'http://127.0.0.1:3000/reset-password?token={token}'
-            if send_email('Forgot Password', f'Please, click the link to restore your password: {reset_link}',
-                          [user.email]):
-                return make_response({'message': 'The email has been sent'}, 200)
-            else:
-                return make_response({'message': 'Could not sent the email'}, 400)
-        else:
-            return make_response({'message': 'The user with the given email does not exist'}, 202)
+        contact = self.find_contact(contact_id)
+        contact.name = data.get('name') if data.get('name') else contact.name
+        contact.email = data.get('email') if data.get('email') else contact.email
+        contact.phone = data.get('phone') if data.get('phone') else contact.phone
+        result = self.schema.dump(contact.update())
+        return result, 200
 
-
-@user_namespace.route('/reset-password')
-class ResetPasswordResource(Resource):
-
-    @user_namespace.expect(reset_password_request)
-    @user_namespace.response(code=400, description='Bad Request')
-    @user_namespace.response(code=200, description='Success', model=reset_password_response)
-    def post(self):
-        data = request.get_json()
-        token = data.get('token')
-        password = data.get('password')
-        user = User.get_one(**{'email': decrypt_data(token)})
-        if user:
-            user.password = generate_password_hash(password)
-            user.save()
-            return make_response({'message': 'Your password has been changed successfully'}, 200)
-        else:
-            return make_response({'message': 'The entered token is invalid'}, 202)
+    @contact_namespace.response(code=200, description='Success', model=contact_deleted)
+    @contact_namespace.response(code=404, description='Contact not found')
+    def delete(self, contact_id):
+        contact = self.find_contact(contact_id)
+        contact.delete()
+        return {'message': 'The contact was deleted'}, 200
