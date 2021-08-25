@@ -12,6 +12,19 @@ user_response = user_namespace.model('UserResponse', {
     'type': fields.String
 })
 
+patient_request = user_namespace.model('PatientRequest', {
+    'first_name': fields.String,
+    'last_name': fields.String,
+    'email': fields.String,
+    'password': fields.String,
+    'phone': fields.String,
+    'address': fields.String,
+    'dni': fields.String,
+    'username': fields.String,
+    'recovered': fields.Boolean,
+    'comorbidities': fields.List(fields.Integer)
+})
+
 patient_response = user_namespace.model('PatientResponse', {
     'id': fields.Integer,
     'first_name': fields.String,
@@ -20,6 +33,7 @@ patient_response = user_namespace.model('PatientResponse', {
     'phone': fields.String,
     'address': fields.String,
     'dni': fields.String,
+    'username': fields.String,
     'recovered': fields.Boolean
 })
 
@@ -39,4 +53,9 @@ contact_response = contact_namespace.model('ContactResponse', {
 
 contact_deleted = contact_namespace.model('ContactDeleted', {
     'message': fields.String('The contact was deleted')
+})
+
+comorbidity_response = patient_namespace.model('ComorbidityResponse', {
+    'id': fields.Integer,
+    'name': fields.String
 })

@@ -9,7 +9,7 @@ from auth.docs import auth_namespace, login_request, login_response, login_unaut
     register_request, register_response, forgot_password_response, reset_password_request, reset_password_response
 from profiles.models import User
 from auth.schemas import LoginSchema, RegisterSchema
-from auth.utils import encrypt_data, decrypt_data
+from auth.services import encrypt_data, decrypt_data
 from settings.layers.mail import send_email
 
 

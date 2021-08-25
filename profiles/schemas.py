@@ -12,7 +12,7 @@ class UserSchema(ma.Schema):
 
 class PatientSchema(ma.Schema):
     class Meta:
-        fields = ("id", "first_name", "last_name", "email", "phone", "address", "dni", "recovered")
+        fields = ("id", "first_name", "last_name", "email", "phone", "address", "dni", "username", "recovered")
         model = Patient
 
 
@@ -24,7 +24,7 @@ class ContactSchema(ma.Schema):
     patient = ma.Nested(PatientSchema)
 
     @validates_schema()
-    def validate_tag(self, data, **kwargs):
+    def validate_contact(self, data, **kwargs):
         errors = {}
         name = data.get('name', None)
         email = data.get('email', None)

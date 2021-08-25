@@ -16,11 +16,11 @@ class NotFoundException(HTTPException):
         super().__init__(message)
 
 
-class InvalidInputException(HTTPException):
+class EmailException(HTTPException):
     code = 422
 
     def __init__(self):
-        message = f'You have send invalid inputs'
+        message = f'The email that you have chosen is already taken'
         super().__init__(message)
 
 

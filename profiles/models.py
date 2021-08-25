@@ -38,7 +38,6 @@ class User(db.Model, BaseModel):
 class Patient(User):
     __tablename__ = 'patients'
     id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
-    # comorbidity = db.Column(db.String(200), nullable=True)
 
     __mapper_args__ = {
         'polymorphic_identity': 'patient',

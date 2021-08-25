@@ -1,10 +1,10 @@
 from flask import Flask
 from flask_jwt_extended.exceptions import NoAuthorizationError, InvalidHeaderError
 from jwt import DecodeError, ExpiredSignatureError
-
+from flask_migrate import Migrate
 from settings.config import DevelopmentConfig
-from settings.exceptions import NotFoundException, BadRequestException, InternalServerException, handle_exception, \
-    handle_no_token, handle_invalid_header, handle_expires_token
+from settings.exceptions import NotFoundException, BadRequestException, EmailException, InternalServerException,\
+    handle_exception, handle_no_token, handle_invalid_header, handle_expires_token
 from settings.layers.database import db
 from settings.layers.serialization import ma
 from settings.layers.seeder import seeder
@@ -19,12 +19,12 @@ from medical_monitoring.urls import medical_monitoring_blueprint
 def create_app():
     app = Flask(__name__)
     config = DevelopmentConfig()
-    #  CORS(app)
     app.config.from_object(config)
     db.init_app(app)
+    Migrate(app, db)
     ma.init_app(app)
-    with app.app_context():
-        db.create_all()
+    # with app.app_context():
+    #     db.create_all()
     seeder.init_app(app, db)
     jwt.init_app(app)
     mail.init_app(app)
@@ -38,6 +38,7 @@ def create_app():
     app.register_error_handler(DecodeError, handle_invalid_header)
     app.register_error_handler(BadRequestException, handle_exception)
     app.register_error_handler(NotFoundException, handle_exception)
+    app.register_error_handler(EmailException, handle_exception)
     app.register_error_handler(InternalServerException, handle_exception)
 
     return app

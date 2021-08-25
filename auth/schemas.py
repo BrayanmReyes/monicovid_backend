@@ -33,7 +33,7 @@ class RegisterSchema(ma.Schema):
         model = User
 
     @validates_schema()
-    def validate_tag(self, data, **kwargs):
+    def validate_user(self, data, **kwargs):
         errors = {}
         first_name = data.get('first_name', None)
         last_name = data.get('last_name', None)
