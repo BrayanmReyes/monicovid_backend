@@ -2,11 +2,13 @@ from flask import request
 from flask_restx import Resource
 
 from medical_risks.schemas import ComorbiditySchema
-from profiles.docs import user_namespace, patient_namespace, contact_namespace, user_response, patient_request, \
-    patient_response, contact_request, contact_response, contact_deleted, comorbidity_response
+from profiles.docs import user_namespace, patient_namespace, doctor_namespace, contact_namespace, user_response,\
+    doctor_request, doctor_response, patient_request, patient_response, contact_request, contact_response,\
+    contact_deleted, comorbidity_response
 from profiles.models import Patient, Contact
-from profiles.schemas import UserSchema, PatientSchema, ContactSchema
-from profiles.services import get_param, get_variable, find_user, find_patient, find_contact, update_patient
+from profiles.schemas import UserSchema, DoctorSchema, PatientSchema, ContactSchema
+from profiles.services import get_param, get_variable, find_user, find_doctor, find_patient, find_contact,\
+    update_doctor, update_patient
 
 
 @user_namespace.route('/<int:user_id>')
@@ -20,6 +22,29 @@ class UserDetailResource(Resource):
     def get(self, user_id):
         user = find_user(user_id)
         result = self.schema.dump(user)
+        return result, 200
+
+
+@doctor_namespace.route('/<int:doctor_id>')
+class DoctorDetailResource(Resource):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.schema = DoctorSchema()
+
+    @doctor_namespace.response(code=200, description='Success', model=doctor_response)
+    @doctor_namespace.response(code=404, description='Doctor not found')
+    def get(self, doctor_id):
+        doctor = find_doctor(doctor_id)
+        result = self.schema.dump(doctor)
+        return result, 200
+
+    @doctor_namespace.expect(doctor_request)
+    @doctor_namespace.response(code=200, description='Success', model=doctor_response)
+    @doctor_namespace.response(code=404, description='Doctor not found')
+    def put(self, doctor_id):
+        data = request.get_json()
+        doctor = update_doctor(find_doctor(doctor_id), data)
+        result = self.schema.dump(doctor)
         return result, 200
 
 

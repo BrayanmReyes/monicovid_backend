@@ -1,5 +1,5 @@
 from medical_risks.services import find_comorbidity
-from profiles.models import User, Patient, Contact
+from profiles.models import User, Doctor, Patient, Contact
 from werkzeug.security import generate_password_hash
 from settings.exceptions import NotFoundException, EmailException
 
@@ -47,6 +47,14 @@ def find_user(user_id):
         raise NotFoundException('user', 'id', user_id)
 
 
+def find_doctor(doctor_id):
+    doctor = Doctor.get_by_id(doctor_id)
+    if doctor:
+        return doctor
+    else:
+        raise NotFoundException('doctor', 'id', doctor_id)
+
+
 def find_patient(patient_id):
     patient = Patient.get_by_id(patient_id)
     if patient:
@@ -61,6 +69,18 @@ def find_contact(contact_id):
         return contact
     else:
         raise NotFoundException('contact', 'id', contact_id)
+
+
+def update_doctor(doctor, data):
+    doctor.first_name = get_variable(data, 'first_name', doctor.first_name)
+    doctor.last_name = get_variable(data, 'last_name', doctor.last_name)
+    doctor.email = get_verify_email(data, 'email', doctor.email)
+    doctor.password = get_hashed_password(data, 'password', doctor.password)
+    doctor.phone = get_variable(data, 'phone', doctor.phone)
+    doctor.address = get_variable(data, 'address', doctor.address)
+    doctor.dni = get_variable(data, 'dni', doctor.dni)
+    doctor.speciality = get_variable(data, 'speciality', doctor.speciality)
+    return doctor.update()
 
 
 def compare(patient, list_new, list_own):

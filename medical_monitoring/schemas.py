@@ -1,47 +1,10 @@
 from marshmallow import post_load, validates_schema
 
+from medical_risks.schemas import TemperatureSchema, OxygenSchema
 from profiles.schemas import PatientSchema
 from settings.exceptions import BadRequestException
 from settings.layers.serialization import ma
-from medical_monitoring.models import Oxygen, Temperature, HealthReport
-
-
-class OxygenSchema(ma.Schema):
-    class Meta:
-        fields = ("id", "value", "register_date")
-        model = Oxygen
-
-    @validates_schema()
-    def validate_oxygen(self, data, **kwargs):
-        errors = {}
-        value = data.get('value', None)
-        if value is None:
-            errors['value'] = 'Value is required'
-        if errors:
-            raise BadRequestException(errors)
-
-    @post_load
-    def make_oxygen(self, data, **kwargs):
-        return Oxygen(**data)
-
-
-class TemperatureSchema(ma.Schema):
-    class Meta:
-        fields = ("id", "value", "register_date")
-        model = Temperature
-
-    @validates_schema()
-    def validate_temperature(self, data, **kwargs):
-        errors = {}
-        value = data.get('value', None)
-        if value is None:
-            errors['value'] = 'Value is required'
-        if errors:
-            raise BadRequestException(errors)
-
-    @post_load
-    def make_oxygen(self, data, **kwargs):
-        return Temperature(**data)
+from medical_monitoring.models import HealthReport
 
 
 class HealthReportSchema(ma.Schema):

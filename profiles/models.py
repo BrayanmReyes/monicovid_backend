@@ -15,7 +15,6 @@ class User(db.Model, BaseModel):
     address = db.Column(db.String(200), nullable=True)
     dni = db.Column(db.String(200), nullable=False)
     username = db.Column(db.String(200), nullable=True)
-    recovered = db.Column(db.Boolean(), default=False, nullable=True)
     type = db.Column(db.String(200), nullable=False)
 
     __mapper_args__ = {
@@ -35,22 +34,25 @@ class User(db.Model, BaseModel):
         self.type = type
 
 
-class Patient(User):
-    __tablename__ = 'patients'
-    id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
-
-    __mapper_args__ = {
-        'polymorphic_identity': 'patient',
-    }
-
-
 class Doctor(User):
     __tablename__ = 'doctors'
     id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
     speciality = db.Column(db.String(200), nullable=True)
+    monitoring = db.relationship("Monitoring", back_populates="doctor")
 
     __mapper_args__ = {
         'polymorphic_identity': 'doctor',
+    }
+
+
+class Patient(User):
+    __tablename__ = 'patients'
+    id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    recovered = db.Column(db.Boolean(), default=False, nullable=True)
+    monitoring = db.relationship("Monitoring", back_populates="patient")
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'patient',
     }
 
 

@@ -29,6 +29,7 @@ class DevelopmentConfig(Config):
     MAIL_DEFAULT_SENDER = 'monicovid.no.reply@gmail.com'
     MAIL_USERNAME = 'monicovid.no.reply@gmail.com'
     MAIL_PASSWORD = 'bgzdagkdujcjxmag'
+    SCHEDULER_API_ENABLED = True
 
 
 class TestingConfig(Config):

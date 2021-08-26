@@ -4,12 +4,35 @@ from flask_restx import Namespace, fields
 
 user_namespace = Namespace('users', description='User operations', decorators=[cross_origin(), jwt_required()])
 patient_namespace = Namespace('patients', description='Patient operations', decorators=[cross_origin(), jwt_required()])
+doctor_namespace = Namespace('doctors', description='Doctor operations', decorators=[cross_origin(), jwt_required()])
 contact_namespace = Namespace('contacts', description='Contact operations', decorators=[cross_origin(), jwt_required()])
 
 user_response = user_namespace.model('UserResponse', {
     'id': fields.Integer,
     'email': fields.String,
     'type': fields.String
+})
+
+doctor_request = user_namespace.model('DoctorRequest', {
+    'first_name': fields.String,
+    'last_name': fields.String,
+    'email': fields.String,
+    'password': fields.String,
+    'phone': fields.String,
+    'address': fields.String,
+    'dni': fields.String,
+    'speciality': fields.String
+})
+
+doctor_response = user_namespace.model('DoctorResponse', {
+    'id': fields.Integer,
+    'first_name': fields.String,
+    'last_name': fields.String,
+    'email': fields.String,
+    'phone': fields.String,
+    'address': fields.String,
+    'dni': fields.String,
+    'speciality': fields.String
 })
 
 patient_request = user_namespace.model('PatientRequest', {

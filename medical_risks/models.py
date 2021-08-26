@@ -1,5 +1,5 @@
 from sqlalchemy.orm import backref
-
+from sqlalchemy.sql import func
 from settings.layers.database import db, BaseModel
 
 
@@ -23,6 +23,28 @@ class Comorbidity(db.Model, BaseModel):
 
     def __init__(self, name):
         self.name = name
+
+
+class Oxygen(db.Model, BaseModel):
+    __tablename__ = 'oxygens'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    value = db.Column(db.Float, nullable=False)
+    register_date = db.Column(db.DateTime(timezone=True), default=func.now(), nullable=False)
+
+    def __init__(self, value):
+        self.value = value
+
+
+class Temperature(db.Model, BaseModel):
+    __tablename__ = 'temperatures'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    value = db.Column(db.Float, nullable=False)
+    register_date = db.Column(db.DateTime(timezone=True), default=func.now(), nullable=False)
+
+    def __init__(self, value):
+        self.value = value
 
 
 patients_comorbidities = db.Table('patients_comorbidities', db.metadata,

@@ -1,13 +1,19 @@
 from marshmallow import post_load, validates_schema
 from settings.exceptions import BadRequestException
 from settings.layers.serialization import ma
-from profiles.models import User, Patient, Contact
+from profiles.models import User, Doctor, Patient, Contact
 
 
 class UserSchema(ma.Schema):
     class Meta:
         fields = ("id", "email", "type")
         model = User
+
+
+class DoctorSchema(ma.Schema):
+    class Meta:
+        fields = ("id", "first_name", "last_name", "email", "phone", "address", "dni", "speciality")
+        model = Doctor
 
 
 class PatientSchema(ma.Schema):

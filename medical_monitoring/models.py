@@ -4,28 +4,6 @@ from settings.layers.database import db, BaseModel
 from sqlalchemy.sql import func
 
 
-class Oxygen(db.Model, BaseModel):
-    __tablename__ = 'oxygens'
-
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    value = db.Column(db.Float, nullable=False)
-    register_date = db.Column(db.DateTime(timezone=True), default=func.now(), nullable=False)
-
-    def __init__(self, value):
-        self.value = value
-
-
-class Temperature(db.Model, BaseModel):
-    __tablename__ = 'temperatures'
-
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    value = db.Column(db.Float, nullable=False)
-    register_date = db.Column(db.DateTime(timezone=True), default=func.now(), nullable=False)
-
-    def __init__(self, value):
-        self.value = value
-
-
 class HealthReport(db.Model, BaseModel):
     __tablename__ = 'health_reports'
 
@@ -45,6 +23,22 @@ class HealthReport(db.Model, BaseModel):
     def __init__(self, is_contact_with_infected, observation):
         self.is_contact_with_infected = is_contact_with_infected
         self.observation = observation
+
+
+class Monitoring(db.Model, BaseModel):
+    __tablename__ = 'monitoring'
+
+    doctor_id = db.Column(db.Integer, db.ForeignKey('doctors.id'), primary_key=True)
+    patient_id = db.Column(db.Integer, db.ForeignKey('patients.id'), primary_key=True)
+    doctor = db.relationship("Doctor", back_populates="monitoring")
+    patient = db.relationship("Patient", back_populates="monitoring")
+    is_active = db.Column(db.Boolean, default=False, nullable=False)
+    start_date = db.Column(db.DateTime(timezone=True), default=func.now(), nullable=False)
+    ending_date = db.Column(db.DateTime(timezone=True), nullable=True)
+
+    def __init__(self, doctor_id, patient_id):
+        self.doctor_id = doctor_id
+        self.patient_id = patient_id
 
 
 health_reports_symptoms = db.Table('health_reports_symptoms', db.metadata,

@@ -2,10 +2,13 @@ from flask import Flask
 from flask_jwt_extended.exceptions import NoAuthorizationError, InvalidHeaderError
 from jwt import DecodeError, ExpiredSignatureError
 from flask_migrate import Migrate
+
+from profiles.job import alert_report
 from settings.config import DevelopmentConfig
 from settings.exceptions import NotFoundException, BadRequestException, EmailException, InternalServerException,\
     handle_exception, handle_no_token, handle_invalid_header, handle_expires_token
 from settings.layers.database import db
+from settings.layers.scheduler import scheduler
 from settings.layers.serialization import ma
 from settings.layers.seeder import seeder
 from settings.layers.jwt import jwt
@@ -28,6 +31,10 @@ def create_app():
     seeder.init_app(app, db)
     jwt.init_app(app)
     mail.init_app(app)
+    app.app_context().push()
+    scheduler.init_app(app)
+    scheduler.start()
+    scheduler.add_job(id='alert_reports', func=alert_report, trigger="interval", hours=1)
     app.register_blueprint(auth_blueprint)
     app.register_blueprint(profiles_blueprint)
     app.register_blueprint(medical_risks_blueprint)

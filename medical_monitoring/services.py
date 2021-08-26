@@ -1,28 +1,12 @@
-from medical_monitoring.models import Oxygen, Temperature, HealthReport
+from medical_monitoring.models import HealthReport
 from profiles.models import Contact
-from medical_risks.services import find_symptom
+from medical_risks.services import find_symptom, find_oxygen, find_temperature
 from settings.exceptions import NotFoundException
 from settings.layers.mail import send_email
 
 
 def get_param(params, search):
     return int(params.get(search)) if params.get(search) else None
-
-
-def find_oxygen(oxygen_id):
-    oxygen = Oxygen.get_by_id(oxygen_id)
-    if oxygen:
-        return oxygen
-    else:
-        raise NotFoundException('oxygen', 'id', oxygen_id)
-
-
-def find_temperature(temperature_id):
-    temperature = Temperature.get_by_id(temperature_id)
-    if temperature:
-        return temperature
-    else:
-        raise NotFoundException('temperature', 'id', temperature_id)
 
 
 def find_health_report(health_report_id):
@@ -71,3 +55,5 @@ def verify_if_is_serious(patient, oxygen, temperature):
         send_email('Follow-up report', 'According to what you have entered in the report, you are in poor health,'
                                        ' take special care of your treatment and contact your doctor',
                    [patient.email])
+
+
