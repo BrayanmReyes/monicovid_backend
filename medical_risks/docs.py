@@ -27,7 +27,7 @@ oxygen_request = oxygen_namespace.model('OxygenRequest', {
 oxygen_response = oxygen_namespace.model('OxygenResponse', {
     'id': fields.Integer,
     'value': fields.Float,
-    'register_date': fields.Date
+    'register_date': fields.DateTime
 })
 
 temperature_request = temperature_namespace.model('TemperatureRequest', {
@@ -37,5 +37,5 @@ temperature_request = temperature_namespace.model('TemperatureRequest', {
 temperature_response = temperature_namespace.model('TemperatureResponse', {
     'id': fields.Integer,
     'value': fields.Float,
-    'register_date': fields.Date
+    'register_date': fields.DateTime
 })

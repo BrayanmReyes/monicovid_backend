@@ -1,12 +1,16 @@
 from flask import request
 from flask_restx import Resource
-from medical_monitoring.docs import health_report_namespace, health_report_request, health_report_response,\
-    symptom_response
-from medical_monitoring.models import HealthReport
-from medical_monitoring.schemas import HealthReportSchema
-from medical_monitoring.services import get_param, find_health_report, save_health_report
+from medical_monitoring.docs import health_report_namespace, monitoring_namespace, health_report_request, \
+    monitoring_request, health_report_response, monitoring_response, symptom_response, patient_response
+from medical_monitoring.models import HealthReport, Monitoring
+from medical_monitoring.schemas import HealthReportSchema, MonitoringSchema
+from medical_monitoring.services import get_param, find_health_report, save_health_report, validate_if_exist_monitoring,\
+    get_last_health_report
 from medical_risks.schemas import SymptomSchema
-from profiles.services import find_patient
+from profiles.models import Patient, Doctor
+from profiles.schemas import PatientSchema
+from profiles.services import find_doctor, find_patient
+from settings.layers.database import db
 
 
 @health_report_namespace.route('')
@@ -23,8 +27,8 @@ class HealthReportListResource(Resource):
         params = request.args
         patient_id = get_param(params, 'patient_id')
         if find_patient(patient_id):
-            contacts = HealthReport.simple_filter(**{'patient_id': patient_id})
-            result = self.schemas.dump(contacts)
+            health_reports = HealthReport.simple_filter(**{'patient_id': patient_id})
+            result = self.schemas.dump(health_reports)
             return result, 200
 
     @health_report_namespace.expect(health_report_request)
@@ -47,6 +51,24 @@ class HealthReportListResource(Resource):
             return result, 201
 
 
+@health_report_namespace.route('/last-report')
+@health_report_namespace.doc(params={'patient_id': 'Patient Id'})
+class LastReportResource(Resource):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.schema = HealthReportSchema()
+
+    @health_report_namespace.response(code=400, description='Bad Request')
+    @health_report_namespace.response(code=201, description='Success', model=health_report_response)
+    def get(self):
+        params = request.args
+        patient_id = get_param(params, 'patient_id')
+        if find_patient(patient_id):
+            health_report = get_last_health_report(patient_id)
+            result = self.schema.dump(health_report)
+            return result, 200
+
+
 @health_report_namespace.route('/<int:health_report_id>/symptoms')
 class SymptomsByHealthReportResource(Resource):
 
@@ -61,3 +83,42 @@ class SymptomsByHealthReportResource(Resource):
         symptoms = health_report.symptoms.filter().all()
         result = self.schemas.dump(symptoms)
         return result, 200
+
+
+@monitoring_namespace.route('')
+class MonitoringListResource(Resource):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.schema = MonitoringSchema()
+
+    @monitoring_namespace.expect(monitoring_request)
+    @monitoring_namespace.response(code=400, description='Bad Request')
+    @monitoring_namespace.response(code=201, description='Success', model=monitoring_response)
+    def post(self):
+        data = request.get_json()
+        patient_id = data.get('patient_id', None)
+        doctor_id = data.get('doctor_id', None)
+        if find_patient(patient_id) and find_doctor(doctor_id):
+            monitoring = validate_if_exist_monitoring(self.schema.load(data))
+            result = self.schema.dump(monitoring)
+            return result, 201
+
+
+@monitoring_namespace.route('/patients')
+@monitoring_namespace.doc(params={'doctor_id': 'Doctor Id'})
+class PatientByMonitoringResource(Resource):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.schema = PatientSchema(many=True)
+
+    @monitoring_namespace.response(code=400, description='Bad Request')
+    @monitoring_namespace.marshal_list_with(patient_response, code=200, description='Success')
+    def get(self):
+        params = request.args
+        doctor_id = get_param(params, 'doctor_id')
+        if find_doctor(doctor_id):
+            query = db.session.query(Patient).join(Monitoring).join(Doctor)
+            query = query.filter(Doctor.id == doctor_id)
+            result = self.schemas.dump(query)
+            return result, 200
+

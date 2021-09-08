@@ -51,5 +51,5 @@ class TemperatureSchema(ma.Schema):
             raise BadRequestException(errors)
 
     @post_load
-    def make_oxygen(self, data, **kwargs):
+    def make_temperature(self, data, **kwargs):
         return Temperature(**data)

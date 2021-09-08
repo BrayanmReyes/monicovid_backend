@@ -32,9 +32,9 @@ class Monitoring(db.Model, BaseModel):
     patient_id = db.Column(db.Integer, db.ForeignKey('patients.id'), primary_key=True)
     doctor = db.relationship("Doctor", back_populates="monitoring")
     patient = db.relationship("Patient", back_populates="monitoring")
-    is_active = db.Column(db.Boolean, default=False, nullable=False)
+    is_active = db.Column(db.Boolean, default=True, nullable=False)
     start_date = db.Column(db.DateTime(timezone=True), default=func.now(), nullable=False)
-    ending_date = db.Column(db.DateTime(timezone=True), nullable=True)
+    end_date = db.Column(db.DateTime(timezone=True), nullable=True)
 
     def __init__(self, doctor_id, patient_id):
         self.doctor_id = doctor_id
