@@ -10,7 +10,7 @@ from medical_monitoring.models import HealthReport, Monitoring
 class HealthReportSchema(ma.Schema):
     class Meta:
         fields = ("id", "is_contact_with_infected", "observation", "register_date", "patient", "temperature", "oxygen",
-                  "symptoms_quantity", "delicate_heath")
+                  "symptoms_quantity", "delicate_health")
         model = HealthReport
 
     patient = ma.Nested(PatientSchema)
