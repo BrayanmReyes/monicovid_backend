@@ -54,12 +54,12 @@ def send_mail_if_is_serious(patient, oxygen, temperature):
         send_email('Follow-up report', 'According to what you have entered in the report, you are in poor health,'
                                        ' take special care of your treatment and contact your doctor',
                    [patient.email])
-        sms.send_message({
-            'from': 'Vonage APIs',
-            'to': f'51{patient.phone}',
-            'text': 'According to what you have entered in the report, you are in poor health,'
-                    ' take special care of your treatment and contact your doctor'
-        })
+        # sms.send_message({
+        #     'from': 'Vonage APIs',
+        #     'to': f'51{patient.phone}',
+        #     'text': 'According to what you have entered in the report, you are in poor health,'
+        #             ' take special care of your treatment and contact your doctor'
+        # })
 
 
 def save_health_report(health_report, patient_id, oxygen_id, temperature_id, symptom_ids):
