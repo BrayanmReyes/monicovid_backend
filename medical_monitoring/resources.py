@@ -59,7 +59,7 @@ class LastReportResource(Resource):
         self.schema = HealthReportSchema()
 
     @health_report_namespace.response(code=400, description='Bad Request')
-    @health_report_namespace.response(code=201, description='Success', model=health_report_response)
+    @health_report_namespace.response(code=200, description='Success', model=health_report_response)
     def get(self):
         params = request.args
         patient_id = get_param(params, 'patient_id')
