@@ -47,3 +47,4 @@ urllib3==1.26.6
 vonage==2.5.5
 Werkzeug==2.0.1
 wrapt==1.12.1
+XlsxWriter==3.0.1

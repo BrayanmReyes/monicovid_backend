@@ -77,3 +77,7 @@ monitoring_response = monitoring_namespace.model('MonitoringResponse', {
     'start_date': fields.DateTime,
     'end_date': fields.Date
 })
+
+deleted_monitoring = monitoring_namespace.model('DeletedMonitoring', {
+    'message': fields.String('The monitoring was deleted')
+})

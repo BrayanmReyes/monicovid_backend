@@ -1,11 +1,14 @@
 from flask import request
 from flask_restx import Resource
+from sqlalchemy import func
+
 from medical_monitoring.docs import health_report_namespace, monitoring_namespace, health_report_request, \
-    monitoring_request, health_report_response, monitoring_response, symptom_response, patient_response
+    monitoring_request, health_report_response, monitoring_response, symptom_response, patient_response, \
+    deleted_monitoring
 from medical_monitoring.models import HealthReport, Monitoring
 from medical_monitoring.schemas import HealthReportSchema, MonitoringSchema
-from medical_monitoring.services import get_param, find_health_report, save_health_report, validate_if_exist_monitoring,\
-    get_last_health_report
+from medical_monitoring.services import get_param, find_health_report, save_health_report, create_monitoring, \
+    get_last_health_report, find_monitoring
 from medical_risks.schemas import SymptomSchema
 from profiles.models import Patient, Doctor
 from profiles.schemas import PatientSchema
@@ -99,9 +102,23 @@ class MonitoringListResource(Resource):
         patient_id = data.get('patient_id', None)
         doctor_id = data.get('doctor_id', None)
         if find_patient(patient_id) and find_doctor(doctor_id):
-            monitoring = validate_if_exist_monitoring(self.schema.load(data))
+            monitoring = create_monitoring(self.schema.load(data))
             result = self.schema.dump(monitoring)
             return result, 201
+
+    @monitoring_namespace.expect(monitoring_request)
+    @monitoring_namespace.response(code=400, description='Bad Request')
+    @monitoring_namespace.response(code=200, description='Success', model=deleted_monitoring)
+    def delete(self):
+        data = request.get_json()
+        patient_id = data.get('patient_id', None)
+        doctor_id = data.get('doctor_id', None)
+        if find_patient(patient_id) and find_doctor(doctor_id):
+            monitoring = find_monitoring(doctor_id, patient_id)
+            monitoring.is_active = False
+            monitoring.end_date = func.now()
+            monitoring.commit()
+            return {'message': 'The monitoring was deleted'}, 200
 
 
 @monitoring_namespace.route('/patients')
@@ -118,7 +135,6 @@ class PatientByMonitoringResource(Resource):
         doctor_id = get_param(params, 'doctor_id')
         if find_doctor(doctor_id):
             query = db.session.query(Patient).join(Monitoring).join(Doctor)
-            query = query.filter(Doctor.id == doctor_id)
+            query = query.filter(Doctor.id == doctor_id, Monitoring.is_active is True)
             result = self.schemas.dump(query)
             return result, 200
-
