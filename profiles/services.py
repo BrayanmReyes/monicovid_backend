@@ -110,13 +110,13 @@ def update_comorbidities(patient, comorbidity_ids):
         for comorbidity_id in comorbidity_ids:
             comorbidity = find_comorbidity(comorbidity_id)
             comorbidities.append(comorbidity)
-    comorbidities_from_patient = patient.comorbidities.filter().all()
-    if len(comorbidities_from_patient) == 0:
-        for comorbidity in comorbidities:
-            patient.comorbidities.append(comorbidity)
-        patient.commit()
-    else:
-        compare(patient, comorbidities, comorbidities_from_patient)
+        comorbidities_from_patient = patient.comorbidities.filter().all()
+        if len(comorbidities_from_patient) == 0:
+            for comorbidity in comorbidities:
+                patient.comorbidities.append(comorbidity)
+                patient.commit()
+        else:
+            compare(patient, comorbidities, comorbidities_from_patient)
     return patient
 
 
