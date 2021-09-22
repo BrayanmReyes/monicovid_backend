@@ -136,5 +136,5 @@ class PatientByMonitoringResource(Resource):
         if find_doctor(doctor_id):
             query = db.session.query(Patient).join(Monitoring).join(Doctor)
             query = query.filter(Doctor.id == doctor_id, Monitoring.is_active is True)
-            result = self.schemas.dump(query)
+            result = self.schema.dump(query)
             return result, 200
