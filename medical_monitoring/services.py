@@ -100,12 +100,24 @@ def get_last_health_report(patient_id):
 def create_monitoring(monitoring):
     previous_monitoring = find_exist_monitoring(monitoring.patient_id, True)
     if previous_monitoring:
-        previous_monitoring.is_active = False
-        previous_monitoring.end_date = func.now()
-        previous_monitoring.commit()
-        return monitoring.save()
+        if previous_monitoring.patient_id == monitoring.patient_id and previous_monitoring.doctor_id == monitoring.doctor_id:
+            previous_monitoring.start_date = func.now()
+            return previous_monitoring.update()
+        else:
+            previous_monitoring.is_active = False
+            previous_monitoring.end_date = func.now()
+            previous_monitoring.commit()
+            return monitoring.save()
     else:
-        return monitoring.save()
+        filters = {'doctor_id': monitoring.doctor_id, 'patient_id': monitoring.patient_id}
+        equal_monitoring = Monitoring.get_one(**filters)
+        if equal_monitoring:
+            equal_monitoring.is_active = True
+            equal_monitoring.start_date = func.now()
+            equal_monitoring.end_date = None
+            return equal_monitoring.update()
+        else:
+            return monitoring.save()
 
 
 def report_excel(health_report):
