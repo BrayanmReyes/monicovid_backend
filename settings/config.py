@@ -18,7 +18,7 @@ class DevelopmentConfig(Config):
     SERVER = "localhost"
     DATABASE = "monicovid"
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = f'mysql+mysqlconnector://{USER}:{PASSWORD}@{SERVER}/{DATABASE}'
+    SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{USER}:{PASSWORD}@{SERVER}/{DATABASE}'
     SQLALCHEMY_ECHO = False
     PROPAGATE_EXCEPTIONS = True
     SECRET_KEY = 'super secret'

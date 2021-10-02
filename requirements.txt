@@ -30,7 +30,6 @@ Mako==1.1.5
 MarkupSafe==2.0.1
 marshmallow==3.13.0
 marshmallow-sqlalchemy==0.26.1
-mysql-connector-python==8.0.26
 protobuf==3.17.3
 pycparser==2.20
 PyJWT==2.1.0
