@@ -18,7 +18,8 @@ class DoctorSchema(ma.Schema):
 
 class PatientSchema(ma.Schema):
     class Meta:
-        fields = ("id", "first_name", "last_name", "email", "phone", "address", "dni", "username", "recovered")
+        fields = ("id", "first_name", "last_name", "email", "phone", "address", "dni", "username", "recovered",
+                  "recovered_date")
         model = Patient
 
 

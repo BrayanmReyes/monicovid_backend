@@ -1,3 +1,5 @@
+from sqlalchemy import func
+
 from medical_risks.services import find_comorbidity
 from profiles.models import User, Doctor, Patient, Contact
 from werkzeug.security import generate_password_hash
@@ -120,6 +122,13 @@ def update_comorbidities(patient, comorbidity_ids):
     return patient
 
 
+def verify_is_recovered(recovered):
+    if recovered:
+        return func.now()
+    else:
+        return None
+
+
 def update_patient(patient, data, comorbidity_ids):
     patient.first_name = get_variable(data, 'first_name', patient.first_name)
     patient.last_name = get_variable(data, 'last_name', patient.last_name)
@@ -130,4 +139,5 @@ def update_patient(patient, data, comorbidity_ids):
     patient.dni = get_variable(data, 'dni', patient.dni)
     patient.username = get_variable(data, 'username', patient.username)
     patient.recovered = get_boolean_variable(data, 'recovered', patient.recovered)
+    patient.recovered_date = verify_is_recovered(patient.recovered)
     return update_comorbidities(patient.update(), comorbidity_ids)

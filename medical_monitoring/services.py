@@ -144,4 +144,5 @@ def report_excel(health_report):
     for index, comorbidity in enumerate(patient.comorbidities.filter().all()):
         worksheet.write(11, index + 1, comorbidity.name)
     workbook.close()
-    return f.getvalue()
+    f.seek(0)
+    return f

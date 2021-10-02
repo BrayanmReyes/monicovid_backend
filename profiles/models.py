@@ -49,6 +49,7 @@ class Patient(User):
     __tablename__ = 'patients'
     id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
     recovered = db.Column(db.Boolean(), default=False, nullable=True)
+    recovered_date = db.Column(db.DateTime(timezone=True), nullable=True)
     monitoring = db.relationship("Monitoring", back_populates="patient")
 
     __mapper_args__ = {

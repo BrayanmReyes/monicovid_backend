@@ -1,4 +1,4 @@
-from flask import request
+from flask import request, send_file
 from flask_restx import Resource
 from sqlalchemy import func
 
@@ -8,7 +8,7 @@ from medical_monitoring.docs import health_report_namespace, monitoring_namespac
 from medical_monitoring.models import HealthReport, Monitoring
 from medical_monitoring.schemas import HealthReportSchema, MonitoringSchema
 from medical_monitoring.services import get_param, find_health_report, save_health_report, create_monitoring, \
-    get_last_health_report, find_monitoring
+    get_last_health_report, find_monitoring, report_excel
 from medical_risks.schemas import SymptomSchema
 from profiles.models import Patient, Doctor
 from profiles.schemas import PatientSchema
@@ -70,6 +70,17 @@ class LastReportResource(Resource):
             health_report = get_last_health_report(patient_id)
             result = self.schema.dump(health_report)
             return result, 200
+
+
+@health_report_namespace.route('/<int:health_report_id>/excel')
+class ExcelHealthReportResource(Resource):
+
+    @health_report_namespace.response(code=404, description='HealthReport not found')
+    def get(self, health_report_id):
+        health_report = find_health_report(health_report_id)
+        result = report_excel(health_report)
+        return send_file(result, as_attachment=True, attachment_filename='report.xlsx',
+                         mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
 
 @health_report_namespace.route('/<int:health_report_id>/symptoms')

@@ -57,7 +57,8 @@ patient_response = user_namespace.model('PatientResponse', {
     'address': fields.String,
     'dni': fields.String,
     'username': fields.String,
-    'recovered': fields.Boolean
+    'recovered': fields.Boolean,
+    'recovered_date': fields.DateTime
 })
 
 contact_request = contact_namespace.model('ContactRequest', {
