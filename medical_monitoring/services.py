@@ -1,3 +1,5 @@
+import datetime
+
 from sqlalchemy import func
 from io import BytesIO
 from medical_monitoring.models import HealthReport, Monitoring
@@ -120,6 +122,15 @@ def create_monitoring(monitoring):
             return monitoring.save()
 
 
+def get_last_three_days_reports(health_reports):
+    from_date = datetime.datetime.today() - datetime.timedelta(days=3)
+    new_health_reports = []
+    for health_report in health_reports:
+        if health_report.register_date > from_date:
+            new_health_reports.append(health_report)
+    return new_health_reports
+
+
 def report_excel(health_report):
     f = BytesIO()
     workbook = xlsxwriter.Workbook(f)
@@ -143,6 +154,37 @@ def report_excel(health_report):
     patient = find_patient(health_report.patient.id)
     for index, comorbidity in enumerate(patient.comorbidities.filter().all()):
         worksheet.write(11, index + 1, comorbidity.name)
+    workbook.close()
+    f.seek(0)
+    return f
+
+
+def last_three_days_report_excel(health_reports):
+    health_reports = get_last_three_days_reports(health_reports)
+    f = BytesIO()
+    workbook = xlsxwriter.Workbook(f)
+    for i, health_report in enumerate(health_reports):
+        work_sheet_name = f'Report {i}'
+        worksheet = workbook.add_worksheet(work_sheet_name)
+        worksheet.write('B3', 'Paciente')
+        worksheet.write('C3', f'{health_report.patient.first_name} {health_report.patient.last_name}')
+        worksheet.write('B4', 'Observación')
+        worksheet.write('C4', health_report.observation)
+        worksheet.write('B5', 'Tuvo contacto con un infectado')
+        worksheet.write('C5', 'Si' if health_report.is_contact_with_infected else 'No')
+        worksheet.write('B6', 'Oxigeno')
+        worksheet.write('C6', health_report.oxygen.value)
+        worksheet.write('B7', 'Temperatura')
+        worksheet.write('C7', health_report.temperature.value)
+        worksheet.write('B8', 'Fecha de registro')
+        worksheet.write('C8', f'{health_report.register_date}')
+        worksheet.write('B9', 'Sintomas')
+        for index, symptom in enumerate(health_report.symptoms.filter().all()):
+            worksheet.write(9, index + 1, symptom.name)
+        worksheet.write('B11', 'Comorbilidades')
+        patient = find_patient(health_report.patient.id)
+        for index, comorbidity in enumerate(patient.comorbidities.filter().all()):
+            worksheet.write(11, index + 1, comorbidity.name)
     workbook.close()
     f.seek(0)
     return f

@@ -8,7 +8,7 @@ from medical_monitoring.docs import health_report_namespace, monitoring_namespac
 from medical_monitoring.models import HealthReport, Monitoring
 from medical_monitoring.schemas import HealthReportSchema, MonitoringSchema
 from medical_monitoring.services import get_param, find_health_report, save_health_report, create_monitoring, \
-    get_last_health_report, find_monitoring, report_excel
+    get_last_health_report, find_monitoring, report_excel, last_three_days_report_excel
 from medical_risks.schemas import SymptomSchema
 from profiles.models import Patient, Doctor
 from profiles.schemas import PatientSchema
@@ -81,6 +81,18 @@ class ExcelHealthReportResource(Resource):
         result = report_excel(health_report)
         return send_file(result, as_attachment=True, attachment_filename='report.xlsx',
                          mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
+
+@health_report_namespace.route('/<int:patient_id>/last-three-days-excel')
+class ExcelLastThreeDaysResource(Resource):
+
+    @health_report_namespace.response(code=404, description='Patient not found')
+    def get(self, patient_id):
+        if find_patient(patient_id):
+            health_reports = HealthReport.simple_filter(**{'patient_id': patient_id})
+            result = last_three_days_report_excel(health_reports)
+            return send_file(result, as_attachment=True, attachment_filename='report.xlsx',
+                             mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
 
 @health_report_namespace.route('/<int:health_report_id>/symptoms')
