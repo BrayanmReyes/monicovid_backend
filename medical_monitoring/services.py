@@ -134,7 +134,7 @@ def get_last_three_days_reports(health_reports):
 def report_excel(health_report):
     f = BytesIO()
     workbook = xlsxwriter.Workbook(f)
-    worksheet = workbook.add_worksheet('Report')
+    worksheet = workbook.add_worksheet('Reporte')
     worksheet.write('B3', 'Paciente')
     worksheet.write('C3', f'{health_report.patient.first_name} {health_report.patient.last_name}')
     worksheet.write('B4', 'Observación')
@@ -164,7 +164,7 @@ def last_three_days_report_excel(health_reports):
     f = BytesIO()
     workbook = xlsxwriter.Workbook(f)
     for i, health_report in enumerate(health_reports):
-        work_sheet_name = f'Report {i}'
+        work_sheet_name = f'Reporte {i + 1}'
         worksheet = workbook.add_worksheet(work_sheet_name)
         worksheet.write('B3', 'Paciente')
         worksheet.write('C3', f'{health_report.patient.first_name} {health_report.patient.last_name}')
