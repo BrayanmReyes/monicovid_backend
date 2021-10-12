@@ -1,5 +1,5 @@
 from settings.factory import create_app
 
 if __name__ == '__main__':
-    app = create_app()
-    app.run()
+    APP = create_app()
+    APP.run()
