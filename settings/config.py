@@ -5,11 +5,23 @@ class Config(object):
 
 
 class ProductionConfig(Config):
-    USER = "production"
-    PASSWORD = "production"
-    SERVER = "production"
-    DATABASE = "production"
-    SQLALCHEMY_DATABASE_URI = f'mysql+mysqlconnector://{USER}:{PASSWORD}@{SERVER}/{DATABASE}'
+    USER = "b3b4171c554a6e"
+    PASSWORD = "906339a7"
+    SERVER = "us-cdbr-east-04.cleardb.com"
+    DATABASE = "heroku_b2f3793f1ada2a5"
+    DEBUG = True
+    SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{USER}:{PASSWORD}@{SERVER}/{DATABASE}'
+    SQLALCHEMY_ECHO = False
+    PROPAGATE_EXCEPTIONS = True
+    SECRET_KEY = 'super secret'
+    MAIL_SERVER = 'smtp.gmail.com'
+    MAIL_PORT = 587
+    MAIL_USE_TLS = True
+    MAIL_USE_SSL = False
+    MAIL_DEFAULT_SENDER = 'monicovid.no.reply@gmail.com'
+    MAIL_USERNAME = 'monicovid.no.reply@gmail.com'
+    MAIL_PASSWORD = 'bgzdagkdujcjxmag'
+    SCHEDULER_API_ENABLED = True
 
 
 class DevelopmentConfig(Config):

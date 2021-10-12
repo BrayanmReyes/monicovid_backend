@@ -4,7 +4,7 @@ from jwt import DecodeError, ExpiredSignatureError
 from flask_migrate import Migrate
 
 from profiles.job import alert_report
-from settings.config import DevelopmentConfig
+from settings.config import DevelopmentConfig, ProductionConfig
 from settings.exceptions import NotFoundException, BadRequestException, EmailException, InternalServerException,\
     handle_exception, handle_no_token, handle_invalid_header, handle_expires_token
 from settings.layers.database import db
@@ -21,7 +21,7 @@ from medical_monitoring.urls import medical_monitoring_blueprint
 
 def create_app():
     app = Flask(__name__)
-    config = DevelopmentConfig()
+    config = ProductionConfig()
     app.config.from_object(config)
     db.init_app(app)
     Migrate(app, db)
