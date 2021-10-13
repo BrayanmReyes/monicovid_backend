@@ -5,10 +5,10 @@ class Config(object):
 
 
 class ProductionConfig(Config):
-    USER = "b3b4171c554a6e"
-    PASSWORD = "906339a7"
-    SERVER = "us-cdbr-east-04.cleardb.com"
-    DATABASE = "heroku_b2f3793f1ada2a5"
+    USER = "monicovid"
+    PASSWORD = "monicovid"
+    SERVER = "104.197.107.90"
+    DATABASE = "monicovid"
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{USER}:{PASSWORD}@{SERVER}/{DATABASE}'
     SQLALCHEMY_ECHO = False
